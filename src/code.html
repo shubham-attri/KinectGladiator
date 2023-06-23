@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Teachable Machine Example</title>
+  </head>
+  <body>
+    <video id="video" width="640" height="480" autoplay playsinline></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.8.0/dist/tf.min.js"></script>
+    <script>
+      async function main() {
+        const URL = 'https://teachablemachine.withgoogle.com/models/tmDlztoqh/model.json';
+        const model = await tf.loadLayersModel(URL);
+
+        const video = document.getElementById('video');
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        await video.play();
+
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        async function loop() {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const input = tf.browser.fromPixels(imageData).reshape([1, canvas.height, canvas.width, 3]).div(255);
+          const output = model.predict(input);
+          const prediction = output.dataSync();
+          const classIndex = prediction.indexOf(Math.max(...prediction));
+          switch (classIndex) {
+            case 0:
+              console.log('Class 0');
+              // Do something for class 0
+              break;
+            case 1:
+              console.log('Class 1');
+              // Do something for class 1
+              break;
+            case 2:
+              console.log('Class 2');
+              // Do something for class 2
+              break;
+            case 3:
+              console.log('Class 3');
+              // Do something for class 3
+              break;
+            case 4:
+              console.log('Class 4');
+              // Do something for class 4
+              break;
+            default:
+              console.log('Unknown class');
+              // Unknown class
+              break;
+          }
+          requestAnimationFrame(loop);
+        }
+
+        loop();
+      }
+
+      main();
+    </script>
+  </body>
+</html>
